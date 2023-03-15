@@ -1,0 +1,18 @@
+To-Do
+=====
+> Custom Unity Railway construction tool (places rail objects constructed on bezier curves.)
+> Allow for collection of rail object segments.
+> To enable this rails must be placed in segments
+> Setup tile snapping to ensure rails connect properly. 
+> Is this viable with the tilemap or will a custom grid be required?
+
+Steps
+=====
+1. Calculate node grid
+2. Check if straight line
+3. If straight place segment
+4. If curved Create Bezier curve
+5. Calculate 2 offsets (E.g. +5 & -5), this is for the 2 rails
+6. Subdivide curve into curve segments
+7. place boards to indicate segments
+8. Store data into node grid. 
