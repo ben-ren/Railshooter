@@ -2,17 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class TrainController : PathWalker
+public class TrainController : MonoBehaviour
 {
-    void Update() {
-        TrainControls();
-        MoveLogic();
+
+    void Start()
+    {
+        
     }
 
-    void TrainControls(){
-        if (Input.anyKeyDown){
-            speed += (int)Input.GetAxisRaw("Vertical");
-            speed = Mathf.Clamp(speed, minSpeed, maxSpeed);
-        }
+    void Update() {
+        
     }
+
 }
