@@ -12,26 +12,60 @@ public class PathFollow : MonoBehaviour
     private Vector3 targetPos;          //Object target position
     private Vector3 startPos;          //Object target position
     private float progress;             //progress between points on spline
+    private float distance;             //distance between points on the curve
+    private Vector3 parentOffset;       //the offset between the parent object & the SpriteShapeController
     private int i;
 
     void Start()
     {
+        ParentCheck();
         _spline = SSC.spline;                            //Assigns the SpriteShape's spline to Spline variable for checking. 
-        transform.position = _spline.GetPosition(0);     //Assign object's starting position
-        startPos = _spline.GetPosition(0);              //Assign initial start position
-        targetPos = _spline.GetPosition(1);              //Assign initial target position
+        transform.position = parentOffset + _spline.GetPosition(0);     //Assign object's starting position
+        startPos = parentOffset + _spline.GetPosition(0);              //Assign initial start position
+        targetPos = parentOffset + _spline.GetPosition(1);              //Assign initial target position
         i = 0;                                          //first index position
     }
 
     // Update is called once per frame
     void Update()
     {
+        //calculates distance between points along curve.
+        distance = CurveDistance(i, .99f);
+
+        ParentCheck();
         float prog = Progress();
         Vector3 newPos = GetPointOnSpline(i, prog, startPos, targetPos);
         Vector3 newLook = GetPointOnSpline(i, prog+0.01f, startPos, targetPos);
 
         MoveAlongSpline(newPos);
         RotationCalc(newLook);
+    }
+
+    /**
+     * Checks for the presence of a parent object. 
+     * If the SpriteShape is attached to a parent object it add's that transform offset to all instance's of startPos & targetPos
+     */
+    void ParentCheck()
+    {
+        if (SSC.transform.parent !=null)
+        {
+            parentOffset = SSC.transform.parent.transform.position;
+        }
+    }
+
+    /**
+     * Calculates the approximate length of the curve. 
+     */
+    float CurveDistance(int i, float steps)
+    {
+        float dist = 0f;
+        for (float p = 0f; p<steps; p+=0.01f)
+        {
+            Vector2 current = GetPointOnSpline(i, p, startPos, targetPos);
+            Vector2 next = GetPointOnSpline(i, p+0.01f, startPos, targetPos);
+            dist += Vector2.Distance(current, next);
+        }
+        return dist;
     }
 
     /**
@@ -56,11 +90,14 @@ public class PathFollow : MonoBehaviour
         if (ReachedPoint(targetPos) && ReachedSplineEnd(i, 2)) 
         {
             i++;
-            startPos = _spline.GetPosition(i);
-            targetPos = _spline.GetPosition(i + 1);
+            startPos = parentOffset + _spline.GetPosition(i);
+            targetPos = parentOffset + _spline.GetPosition(i + 1);
         }
     }
 
+    /**
+     * Get a point on the spline from start of node (i) along curve at position (progress)
+     */
     public Vector2 GetPointOnSpline(int i, float progress, Vector3 start, Vector3 target)
     {
         Vector2 _p0 = new(start.x, start.y);
@@ -77,11 +114,14 @@ public class PathFollow : MonoBehaviour
         );
     }
 
+    /**
+     * Calculates the current progress along the spline to the targetPos
+     */
     float Progress()
     {
         if (progress < 1.0)
         {
-            progress += speed*.1f*Time.deltaTime;
+            progress += Time.deltaTime * (speed/distance);
         }
         else if(!FinalPointReached())
         {
@@ -90,6 +130,9 @@ public class PathFollow : MonoBehaviour
         return Mathf.Clamp01(progress);
     }
 
+    /**
+     * Returns if the gameObjects has reached the end of the spline
+     */
     bool ReachedSplineEnd(int i, int offset)
     {
         return i < (_spline.GetPointCount() - offset);
