@@ -4,6 +4,12 @@ using UnityEngine;
 
 public class RailSwitch : MonoBehaviour{
 
+    /**
+     * Stores list of connected rails.
+     * Checks TrainController for selected direction
+     * Selects which SpriteShapeController to assign to PathFollow based on the direction option.
+     */
+
     // Start is called before the first frame update
     void Start()
     {
@@ -15,13 +21,4 @@ public class RailSwitch : MonoBehaviour{
     {
         
     }
-
-    //Instantiate RailSwitch objects onto start and end nodes of Splines.
-
-    //Splines generated within range of a RailSwitch object hitbox (at start or end node) automatically attaches end node to switch position.
-
-    //RailSwitch automatically attaches to Start node. 
-    
-    //If train object is in RailSwitch object hitbox AT START NODE, player can change bool for switching to attached track. 
-
 }

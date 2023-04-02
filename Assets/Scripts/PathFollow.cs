@@ -42,6 +42,22 @@ public class PathFollow : MonoBehaviour
     }
 
     /**
+     * Get the current index
+     */
+    public int GetIndex()
+    {
+        return this.i;
+    }
+
+    /**
+     * Get the current progress
+     */
+    public float GetProgress()
+    {
+        return this.progress;
+    }
+
+    /**
      * Checks for the presence of a parent object. 
      * If the SpriteShape is attached to a parent object it add's that transform offset to all instance's of startPos & targetPos
      */

@@ -1,33 +1,75 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.U2D;
 
 public class Gun_Controller : MonoBehaviour{
+
+    public GameObject projectile;
+    public int railCount;
+
+    private Spline spl;
     private Camera mainCam;
     private Vector3 mousePos;
     
     void Start(){
+        spl = this.gameObject.GetComponentInParent<PathFollow>().SSC.spline;
+        Debug.Log(spl);
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
     }
 
     // Update is called once per frame
     void Update(){
-        rotationCalc();
+        mousePos = mainCam.ScreenToWorldPoint(Input.mousePosition);
+        RotationCalc(mousePos);
+        if (Input.GetMouseButtonDown(0)) {
+            Shoot(mousePos);
+        }
     }
 
-    void rotationCalc(){
-        mousePos = mainCam.ScreenToWorldPoint(Input.mousePosition);
-        float z_rot = Mathf.Rad2Deg*Mathf.Atan2((mousePos.y - transform.position.y), (mousePos.x - transform.position.x)) - 90;     //360 deree rotation
-        //float z_rot = Mathf.Rad2Deg*Mathf.Atan(-(mousePos.x - transform.position.x) / (mousePos.y - transform.position.y));       //180 degree rotation
+    void RotationCalc(Vector3 pos){
+        float z_rot = Mathf.Rad2Deg*Mathf.Atan2((pos.y - transform.position.y), (pos.x - transform.position.x)) - 90;     //360 deree rotation
+        //float z_rot = Mathf.Rad2Deg*Mathf.Atan(-(pos.x - transform.position.x) / (pos.y - transform.position.y));       //180 degree rotation
         transform.rotation = Quaternion.Euler(0, 0, z_rot);
     }
 
-    //Shoots a rail from the gun
-    void ShootRail(){
-        //Creates a rail prefab
-        //1st/origin node is at train position
-        //4th/last/target node is at gun target position
-        //the other 2 node vector positions are calculated using the origin node, last node, Gun_Controller.rotationCalc() and Train_Controller.RotationCalculation().
-        //This complex calculation is used to provide a curved track when the train is firing at an angle. 
+    /**
+     * Assign the mouse position as the target
+     */
+    public Vector3 AssignTarget()
+    {
+        return mousePos;
+    }
+
+    /**
+     * Assign an input GameObject as the target
+     */
+    public Vector3 AssignTarget(GameObject obj)
+    {
+        return obj.transform.position;
+    }
+
+    /**
+     * Fires a ray in a straight line to the target position
+     */
+    public void Shoot(Vector3 target)
+    {
+
+    }
+
+    /**
+     * Fires a ray in a straight line towards target position cutting off at length of range.
+     */
+    public void Shoot(Vector3 target, float range)
+    {
+
+    }
+
+    /**
+     * Instantiates a projectile prefab instead of firing a ray. 
+     */
+    public void ShootProjectile()
+    {
+        GameObject bullet = (GameObject)Instantiate(projectile);
     }
 }
