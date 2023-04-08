@@ -2,12 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[RequireComponent(typeof(PathFollow))]
-public class TrainController : MonoBehaviour
+public class TrainController : PathFollow
 {
-    private PathFollow logic;
-    private float speed;
-
     void Start()
     {
         
@@ -16,13 +12,17 @@ public class TrainController : MonoBehaviour
     void Update() 
     {
         SetSpeed(5);
-        logic.speed = this.speed;
     }
 
     /**
-     * Changes which spline is used for the PathFollow from the closest TrackSwitch
+     * Input control that let's the player choose their next track direction, relative to their current rotation.
+     * 
+     * Options include
+     *  0. straight
+     *  1. left
+     *  2. right
      */
-    void SetActiveSpline()
+    void TrackSelect()
     {
 
     }

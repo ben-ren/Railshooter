@@ -112,6 +112,14 @@ public class PathFollow : MonoBehaviour
     }
 
     /**
+     * Changes the assigned SpriteShapeController by getting the collision with the RailSwitch and resets the progress & index fields
+     */
+    void SetNewTrack()
+    {
+
+    }
+
+    /**
      * Get a point on the spline from start of node (i) along curve at position (progress)
      */
     public Vector2 GetPointOnSpline(int i, float progress, Vector3 start, Vector3 target)

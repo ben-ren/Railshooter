@@ -6,6 +6,8 @@ using UnityEngine.U2D;
 public class Gun_Controller : MonoBehaviour{
 
     public GameObject projectile;
+    public GameObject prefab;
+    public PathFollow path;
     public int railCount;
 
     private Spline spl;
@@ -24,6 +26,7 @@ public class Gun_Controller : MonoBehaviour{
         RotationCalc(mousePos);
         if (Input.GetMouseButtonDown(0)) {
             Shoot(mousePos);
+            CreateTrack(path, AssignTarget());
         }
     }
 
@@ -63,6 +66,28 @@ public class Gun_Controller : MonoBehaviour{
     public void Shoot(Vector3 target, float range)
     {
 
+    }
+
+    /* 
+     * Instantiates a RailSwitch prefab at a position on the PathFollow
+     * with it's track leading to a Vector3 target position 
+     */
+    void CreateTrack(PathFollow path, Vector3 target)
+    {
+        Vector3 start = GetPathVector(path, 0);
+        Vector3 end = GetPathVector(path, 1);
+        GameObject track = (GameObject)Instantiate(prefab, path.GetPointOnSpline(path.GetIndex(), path.GetProgress(), start, end), Quaternion.identity);
+        track.GetComponentInChildren<SpriteShapeController>().spline.SetPosition(1, target);
+        int splineLength = track.GetComponentInChildren<SpriteShapeController>().spline.GetPointCount();
+        for (int i = 0; i < splineLength; i++)
+        {
+            track.GetComponentInChildren<SpriteShapeController>().spline.SetTangentMode(i, ShapeTangentMode.Continuous);
+        }
+    }
+
+    Vector3 GetPathVector(PathFollow path, int indexOffset)
+    {
+        return path.SSC.spline.GetPosition(path.GetIndex() + indexOffset);
     }
 
     /**
