@@ -16,7 +16,6 @@ public class Gun_Controller : MonoBehaviour{
     
     void Start(){
         spl = this.gameObject.GetComponentInParent<PathFollow>().SSC.spline;
-        Debug.Log(spl);
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
     }
 

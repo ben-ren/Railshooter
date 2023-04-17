@@ -30,7 +30,7 @@ public class PathFollow : MonoBehaviour
     void Update()
     {
         //calculates distance between points along curve.
-        distance = CurveDistance(i, .99f);
+        distance = CurveDistance(i, 0.0f, .99f);
 
         ParentCheck();
         float prog = Progress();
@@ -72,10 +72,10 @@ public class PathFollow : MonoBehaviour
     /**
      * Calculates the approximate length of the curve. 
      */
-    float CurveDistance(int i, float steps)
+    public float CurveDistance(int i, float startOffset, float steps)
     {
         float dist = 0f;
-        for (float p = 0f; p<steps; p+=0.01f)
+        for (float p = startOffset; p<steps; p+=0.01f)
         {
             Vector2 current = GetPointOnSpline(i, p, startPos, targetPos);
             Vector2 next = GetPointOnSpline(i, p+0.01f, startPos, targetPos);
@@ -113,10 +113,19 @@ public class PathFollow : MonoBehaviour
 
     /**
      * Changes the assigned SpriteShapeController by getting the collision with the RailSwitch and resets the progress & index fields
+     * 
+     * TODO - Modify code to enable rejoining at an input point along an existing rail. 
+     * 
+     * BUG: Fix jitter when Train switches tracks.
      */
-    void SetNewTrack()
+    public void SetNewTrack(SpriteShapeController track, int index, float p)
     {
-
+        this.SSC = track;
+        this._spline = track.spline;
+        i = index;
+        progress = p;
+        startPos = track.spline.GetPosition(i);             // Assign new initial start position as connectionPoint
+        targetPos = track.spline.GetPosition(i+1);            // Assign initial target position using offset of connectionPoint
     }
 
     /**
@@ -173,7 +182,7 @@ public class PathFollow : MonoBehaviour
     /**
      * Checks to see if player position has reached final point on spline
      */
-    bool FinalPointReached()
+    public bool FinalPointReached()
     {
         return transform.position == _spline.GetPosition(_spline.GetPointCount() - 1);
     }
