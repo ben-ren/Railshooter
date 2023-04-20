@@ -18,8 +18,8 @@ public class RailSwitch : MonoBehaviour
     public int index;                          // the current track node
     private float p = 0.0f;                     // the progress between 2 nodes
 
-    public bool ObjectOnSwitch;
     public int selectedTrack;
+    public bool ObjectOnSwitch;
     private Vector3 Direction;
 
     private void OnValidate()

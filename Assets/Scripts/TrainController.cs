@@ -4,31 +4,19 @@ using UnityEngine;
 
 public class TrainController : PathFollow
 {
-    void Start()
-    {
-        
-    }
-
-    void Update() 
-    {
-        SetSpeed(5);
-    }
-
+    //Automatically runs the Start & update functions 
+    
     /**
-     * Input control that let's the player choose their next track direction, relative to their current rotation.
-     * 
-     * Options include
-     *  0. straight
-     *  1. left
-     *  2. right
+     * Allows input of distinct controller code into PathFollow parent script
      */
-    void TrackSelect()
+    protected override void Logic()
     {
-
+        base.Logic();
+        Test();
     }
 
-    void SetSpeed(float speed)
+    void Test()
     {
-        this.speed = speed;
+        Debug.Log("test successful");
     }
 }

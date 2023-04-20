@@ -16,6 +16,8 @@ public class PathFollow : MonoBehaviour
     private Vector3 parentOffset;       //the offset between the parent object & the SpriteShapeController
     private int i;
 
+    public int selectedTrack;
+
     void Start()
     {
         ParentCheck();
@@ -39,6 +41,15 @@ public class PathFollow : MonoBehaviour
 
         MoveAlongSpline(newPos);
         RotationCalc(newLook);
+        Logic();
+    }
+
+    /**
+     * Logic code used to dictate how child classes use the PathFollow script
+     */
+    protected virtual void Logic()
+    {
+
     }
 
     /**
