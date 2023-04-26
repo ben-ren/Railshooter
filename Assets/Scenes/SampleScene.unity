@@ -258,7 +258,7 @@ PrefabInstance:
     - target: {fileID: 4157753453505938512, guid: d8c748bfa76fb644abf00a916c8e5d4b,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: 1.6392052
+      value: 1.6392046
       objectReference: {fileID: 0}
     - target: {fileID: 4157753453505938512, guid: d8c748bfa76fb644abf00a916c8e5d4b,
         type: 3}
@@ -6823,7 +6823,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   SSC: {fileID: 1066312339}
   speed: 2
-  selectedTrack: 0
+  selectedTrack: -1
 --- !u!4 &2144777142 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5580010397571076129, guid: d8c748bfa76fb644abf00a916c8e5d4b,

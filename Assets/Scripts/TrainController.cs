@@ -12,11 +12,11 @@ public class TrainController : PathFollow
     protected override void Logic()
     {
         base.Logic();
-        Test();
+        Controls();
     }
 
-    void Test()
+    void Controls()
     {
-        Debug.Log("test successful");
+        
     }
 }

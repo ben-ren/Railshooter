@@ -47,10 +47,7 @@ public class PathFollow : MonoBehaviour
     /**
      * Logic code used to dictate how child classes use the PathFollow script
      */
-    protected virtual void Logic()
-    {
-
-    }
+    protected virtual void Logic() {}
 
     /**
      * Get the current index

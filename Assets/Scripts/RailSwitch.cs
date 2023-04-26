@@ -15,7 +15,7 @@ public class RailSwitch : MonoBehaviour
     private Vector3 connectedRailPoint;     //The point on the rootRail that the rail is connected to. 
 
     //The stored location data of the connection point on the rootTrack;
-    public int index;                          // the current track node
+    private int index;                          // the current track node
     private float p = 0.0f;                     // the progress between 2 nodes
 
     public int selectedTrack;
@@ -32,13 +32,16 @@ public class RailSwitch : MonoBehaviour
     {
         AllignTrackSwitch();
         SetInputTrackLastNode(inputTracks);
+        index = GetIndexOnSpline();
         p = GetProgressOnSplineSegment(connectedRailPoint, index);
         ObjectOnSwitch = false;
+        Debug.Log(GetIndexOnSpline() + " | " + gameObject.name);
     }
 
     // Update is called once per frame
     void Update()
     {
+        index = GetIndexOnSpline();
         SelectTrack(selectedTrack);
     }
 
@@ -56,7 +59,8 @@ public class RailSwitch : MonoBehaviour
         {
             return;
         }
-        else if (track == -1 && obj.SSC != rootTrack && obj != null && rootTrack != null && ObjectOnSwitch)
+        //else if (track == -1 && obj.SSC != rootTrack && obj != null && rootTrack != null && ObjectOnSwitch)
+        else if(track == -1 && ObjectOnSwitch)
         {
             obj.SetNewTrack(rootTrack, index, p);
             ObjectOnSwitch = false;
@@ -69,6 +73,37 @@ public class RailSwitch : MonoBehaviour
             return;
         }
     }
+
+    /**
+     * Calculates the index based on the railSwitch's position on the spline. 
+     */
+    public int GetIndexOnSpline()
+    {
+        float minDistance = Mathf.Infinity;
+        int closestIndex = -1;
+
+        for (int i = 0; i < rootTrack.spline.GetPointCount(); i++)
+        {
+            Vector3 point = rootTrack.spline.GetPosition(i);
+            float distance = Vector3.Distance(transform.position, point);
+
+            if (distance < minDistance)
+            {
+                minDistance = distance;
+                closestIndex = i;
+                //BUG - This is recursive since it relies on p which relies on index itself.
+                if (p > 0.51f)
+                {
+                    closestIndex--;
+                }
+            }
+        }
+
+        return closestIndex;
+    }
+
+
+
 
     /**
      * Get's the progress of an object on a spline segment
@@ -135,6 +170,23 @@ public class RailSwitch : MonoBehaviour
             transform.position = closestPoint;
             connectedRailPoint = closestPoint;
         }
+    }
+
+    bool CheckInRange(Vector3 p, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
+    {
+        Vector3 AB = p1 - p0;
+        Vector3 BC = p2 - p1;
+        Vector3 CD = p3 - p2;
+        Vector3 DA = p0 - p3;
+
+        // Check whether the point is inside the quadrilateral by checking the sign of the cross products
+        bool inside =
+            Vector3.Dot(Vector3.Cross(AB, p - p0), Vector3.Cross(AB, p1 - p0)) >= 0f &&
+            Vector3.Dot(Vector3.Cross(BC, p - p1), Vector3.Cross(BC, p2 - p1)) >= 0f &&
+            Vector3.Dot(Vector3.Cross(CD, p - p2), Vector3.Cross(CD, p3 - p2)) >= 0f &&
+            Vector3.Dot(Vector3.Cross(DA, p - p3), Vector3.Cross(DA, p0 - p3)) >= 0f;
+
+        return inside;
     }
 
     /**
