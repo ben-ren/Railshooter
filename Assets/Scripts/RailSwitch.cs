@@ -35,21 +35,19 @@ public class RailSwitch : MonoBehaviour
         index = GetIndexOnSpline();
         p = GetProgressOnSplineSegment(connectedRailPoint, index);
         ObjectOnSwitch = false;
-        Debug.Log(GetIndexOnSpline() + " | " + gameObject.name);
     }
 
     // Update is called once per frame
     void Update()
     {
         index = GetIndexOnSpline();
+        p = GetProgressOnSplineSegment(connectedRailPoint, index);
         SelectTrack(selectedTrack);
     }
 
     /**
      * Checks if the object entering the trigger has a PathFollow object and that the outputTrack's isn't null.
      * assigns the input track direction. 
-     * 
-     * TODO - Optimize code to remove null reference error, code is clearly checking outputTracks[-1] even when return should avoid that. 
      * 
      * @param track: the index of the selected track stored in the outputTracks array.
      */
@@ -77,7 +75,7 @@ public class RailSwitch : MonoBehaviour
     /**
      * Calculates the index based on the railSwitch's position on the spline. 
      */
-    public int GetIndexOnSpline()
+    public int GetClosestIndexOnSpline()
     {
         float minDistance = Mathf.Infinity;
         int closestIndex = -1;
@@ -91,7 +89,7 @@ public class RailSwitch : MonoBehaviour
             {
                 minDistance = distance;
                 closestIndex = i;
-                //BUG - This is recursive since it relies on p which relies on index itself.
+
                 if (p > 0.51f)
                 {
                     closestIndex--;
@@ -102,35 +100,89 @@ public class RailSwitch : MonoBehaviour
         return closestIndex;
     }
 
+    /**
+     * Calculates the index based on the railSwitch's position on the spline. 
+     */
+    public int GetIndexOnSpline()
+    {
+        int closestIndex = -1;
 
+        for (int i = 0; i < rootTrack.spline.GetPointCount()-1; i++)
+        {
+            Vector3 point = rootTrack.spline.GetPosition(i);
+            Vector3 nextPoint = rootTrack.spline.GetPosition(i+1);
+            if (IsPointInArea(transform.position, point, nextPoint))
+            {
+                closestIndex = i;
+            }
+        }
+        return closestIndex;
+    }
 
+    /**
+     * Checks to see if the point lies between the 2 points instead of beyond them.
+     */
+    bool IsPointInArea(Vector3 point, Vector3 pointA, Vector3 pointB)
+    {
+        Vector3 vectorAB = pointB - pointA;
+        Vector3 vectorATest = point - pointA;
+
+        // If the dot product of vectorAB and vectorATest is less than zero, the test point is outside the area
+        if (Vector3.Dot(vectorAB, vectorATest) < 0)
+        {
+            return false;
+        }
+
+        // If the test point is not outside the area, check the other side of the line defined by the two end points
+        Vector3 vectorBTest = point - pointB;
+
+        // If the dot product of vectorBA and vectorBTest is less than zero, the test point is outside the area
+        if (Vector3.Dot(-vectorAB, vectorBTest) < 0)
+        {
+            return false;
+        }
+
+        // If the test point is not outside the area, it must be inside
+        return true;
+    }
 
     /**
      * Get's the progress of an object on a spline segment
      */
-    public float GetProgressOnSplineSegment(Vector3 position, int segmentIndex, int subdivisions = 100)
+    public float GetProgressOnSplineSegment(Vector3 position, int index)
     {
-        if (segmentIndex < 0 || segmentIndex >= (rootTrack.spline.GetPointCount() - 1))
-        {
-            Debug.LogError("Invalid segment index: " + segmentIndex);
-            return 0f;
-        }
-
-        Vector3 p0 = rootTrack.spline.GetPosition(segmentIndex);
-        Vector3 p1 = rootTrack.spline.GetRightTangent(segmentIndex);
-        Vector3 p2 = rootTrack.spline.GetLeftTangent(segmentIndex + 1);
-        Vector3 p3 = rootTrack.spline.GetPosition(segmentIndex + 1);
-
-        List<Vector3> points = Enumerable.Range(0, subdivisions + 1)
-            .Select(n => BezierUtility.BezierPoint(p0, p1, p2, p3, (float)n / subdivisions))
-            .ToList();
-
-        float closestDistance = points.Min(p => Vector3.Distance(position, p));
-        float progress = points.FindIndex(p => Vector3.Distance(position, p) == closestDistance) / (float)subdivisions;
-
-        return progress;
+        Vector3 segmentStart = rootTrack.spline.GetPosition(index);
+        Vector3 segmentControl1 = rootTrack.spline.GetRightTangent(index);
+        Vector3 segmentControl2 = rootTrack.spline.GetLeftTangent(index + 1);
+        Vector3 segmentEnd = rootTrack.spline.GetPosition(index + 1);
+        float segmentLength = GetBezierCurveSegmentLength(segmentStart, segmentControl1, segmentControl2, segmentEnd);
+        float positionOnSegment = Vector3.Distance(segmentStart, position);
+        float progressOnSegment = positionOnSegment / segmentLength;
+        return progressOnSegment;
     }
 
+    /**
+     * Calculates the Length of a selected BezierCurveSegment, using the 4 input points.
+     */
+    public float GetBezierCurveSegmentLength(Vector3 startPoint, Vector3 control1, Vector3 control2, Vector3 endPoint, int numIterations = 100)
+    {
+        float segmentLength = 0f;
+        Vector3 previousPoint = startPoint;
+
+        for (int i = 1; i <= numIterations; i++)
+        {
+            float t = i / (float)numIterations;
+            Vector3 pointOnCurve = Mathf.Pow(1 - t, 3) * startPoint
+                                + 3 * Mathf.Pow(1 - t, 2) * t * control1
+                                + 3 * (1 - t) * Mathf.Pow(t, 2) * control2
+                                + Mathf.Pow(t, 3) * endPoint;
+
+            segmentLength += Vector3.Distance(previousPoint, pointOnCurve);
+            previousPoint = pointOnCurve;
+        }
+
+        return segmentLength;
+    }
 
     /**
      * orient the direction of the switch's child RotaryPoint using the direction of the connected root_rail at that position.
@@ -170,23 +222,6 @@ public class RailSwitch : MonoBehaviour
             transform.position = closestPoint;
             connectedRailPoint = closestPoint;
         }
-    }
-
-    bool CheckInRange(Vector3 p, Vector3 p0, Vector3 p1, Vector3 p2, Vector3 p3)
-    {
-        Vector3 AB = p1 - p0;
-        Vector3 BC = p2 - p1;
-        Vector3 CD = p3 - p2;
-        Vector3 DA = p0 - p3;
-
-        // Check whether the point is inside the quadrilateral by checking the sign of the cross products
-        bool inside =
-            Vector3.Dot(Vector3.Cross(AB, p - p0), Vector3.Cross(AB, p1 - p0)) >= 0f &&
-            Vector3.Dot(Vector3.Cross(BC, p - p1), Vector3.Cross(BC, p2 - p1)) >= 0f &&
-            Vector3.Dot(Vector3.Cross(CD, p - p2), Vector3.Cross(CD, p3 - p2)) >= 0f &&
-            Vector3.Dot(Vector3.Cross(DA, p - p3), Vector3.Cross(DA, p0 - p3)) >= 0f;
-
-        return inside;
     }
 
     /**

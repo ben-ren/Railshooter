@@ -108,7 +108,6 @@ public class PathFollow : MonoBehaviour
      */
     void MoveAlongSpline(Vector3 newPos)
     {
-        //transform.position = Vector3.MoveTowards(transform.position, targetPos, speed * Time.deltaTime);
         transform.position = newPos;
 
         if (ReachedPoint(targetPos) && ReachedSplineEnd(i, 2)) 
