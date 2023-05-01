@@ -75,7 +75,8 @@ public class Gun_Controller : MonoBehaviour{
     {
         Vector3 start = GetPathVector(path, 0);
         Vector3 end = GetPathVector(path, 1);
-        GameObject track = (GameObject)Instantiate(prefab, path.GetPointOnSpline(path.GetIndex(), path.GetProgress(), start, end), Quaternion.identity);
+        Vector3 pos = path.GetPointOnSpline(path.GetIndex(), path.GetIndex() + 1, path.GetProgress(), start, end);
+        GameObject track = (GameObject)Instantiate(prefab, pos, Quaternion.identity);
         track.GetComponentInChildren<SpriteShapeController>().spline.SetPosition(1, target);
         int splineLength = track.GetComponentInChildren<SpriteShapeController>().spline.GetPointCount();
         for (int i = 0; i < splineLength; i++)

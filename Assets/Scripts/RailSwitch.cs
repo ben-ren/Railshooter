@@ -89,11 +89,6 @@ public class RailSwitch : MonoBehaviour
             {
                 minDistance = distance;
                 closestIndex = i;
-
-                if (p > 0.51f)
-                {
-                    closestIndex--;
-                }
             }
         }
 
