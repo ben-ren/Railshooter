@@ -16,11 +16,10 @@ public class RailSwitch : MonoBehaviour
 
     //The stored location data of the connection point on the rootTrack;
     private int index;                          // the current track node
-    private float p = 0.0f;                     // the progress between 2 nodes
+    public float p = 0.0f;                     // the progress between 2 nodes
 
     public int selectedTrack;
     public bool ObjectOnSwitch;
-    private Vector3 Direction;
 
     private void OnValidate()
     {
@@ -41,7 +40,6 @@ public class RailSwitch : MonoBehaviour
     void Update()
     {
         index = GetIndexOnSpline();
-        p = GetProgressOnSplineSegment(connectedRailPoint, index);
         SelectTrack(selectedTrack);
     }
 
@@ -153,7 +151,7 @@ public class RailSwitch : MonoBehaviour
         float segmentLength = GetBezierCurveSegmentLength(segmentStart, segmentControl1, segmentControl2, segmentEnd);
         float positionOnSegment = Vector3.Distance(segmentStart, position);
         float progressOnSegment = positionOnSegment / segmentLength;
-        return progressOnSegment;
+        return progressOnSegment * 2;
     }
 
     /**

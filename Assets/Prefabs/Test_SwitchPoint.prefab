@@ -97,7 +97,7 @@ GameObject:
   - component: {fileID: 2754169612744723915}
   m_Layer: 0
   m_Name: Test_SwitchPoint
-  m_TagString: Untagged
+  m_TagString: TrackSwitch
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -131,8 +131,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   rootTrack: {fileID: 0}
+  edgeCollider: {fileID: 0}
   inputTracks: []
   outputsTracks: []
+  p: 0
+  selectedTrack: 0
   ObjectOnSwitch: 0
 --- !u!61 &2754169612744723915
 BoxCollider2D:

@@ -7,6 +7,7 @@ TagManager:
   - NewCamera
   - UserInterface
   - root_track
+  - TrackSwitch
   layers:
   - Default
   - TransparentFX

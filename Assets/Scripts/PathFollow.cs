@@ -16,9 +16,8 @@ public class PathFollow : MonoBehaviour
     private float progress;             //progress between points on spline
     private float distance;             //distance between points on the curve
     private Vector3 parentOffset;       //the offset between the parent object & the SpriteShapeController
-    public int i;
-    public int selectedTrack;
-    private bool stop;                  //Controls when the gameObject moves;
+    private int i;
+    public bool stop;                  //Controls when the gameObject moves;
 
     void Start()
     {
@@ -36,7 +35,6 @@ public class PathFollow : MonoBehaviour
     void Update()
     {
         ParentCheck();
-        
         Logic();
     }
 
@@ -191,6 +189,7 @@ public class PathFollow : MonoBehaviour
 
         return closestIndex;
     }
+
 
     /**
      * Calculates the current progress along the spline to the targetPos
