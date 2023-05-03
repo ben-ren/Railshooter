@@ -21,6 +21,8 @@ public class RailSwitch : MonoBehaviour
     public int selectedTrack;
     public bool ObjectOnSwitch;
 
+    private Vector3 parentOffset;
+
     private void OnValidate()
     {
         AllignTrackSwitch();
@@ -29,6 +31,8 @@ public class RailSwitch : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        parentOffset = this.transform.parent.position;
+        transform.position = transform.position + parentOffset;
         AllignTrackSwitch();
         SetInputTrackLastNode(inputTracks);
         index = GetIndexOnSpline();
