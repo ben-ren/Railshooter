@@ -8,7 +8,8 @@ public class PathFollow : MonoBehaviour
     public SpriteShapeController SSC;   //Controller component
     public float speed;                 //The speed the object travels from start to target
 
-    private Spline _spline;             //Spline component
+    protected Spline _spline;             //Spline component
+    protected Camera mainCam;
     private Vector3 targetPos;          //Object target position
     private Vector3 startPos;           //Object start position
     private Vector3 splineStart;        //spline start position
@@ -21,13 +22,14 @@ public class PathFollow : MonoBehaviour
 
     void Start()
     {
+        mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
         ParentCheck();
         _spline = SSC.spline;                            //Assigns the SpriteShape's spline to Spline variable for checking. 
         transform.position = parentOffset + _spline.GetPosition(0);     //Assign object's starting position
         splineStart = parentOffset + _spline.GetPosition(0);              //Assign initial start position
         startPos = parentOffset + _spline.GetPosition(0);              //Assign initial start position
         targetPos = parentOffset + _spline.GetPosition(1);              //Assign initial target position
-        lastPos = parentOffset + _spline.GetPosition(_spline.GetPointCount()-1);              //Assign final target position
+        SetLastPoint();
         i = 0;                                          //first index position
     }
 
@@ -46,6 +48,7 @@ public class PathFollow : MonoBehaviour
         int length = _spline.GetPointCount();
         int start = i % length;
         int end = (i + 1) % length;
+
         if (FinalPointReached() && _spline.isOpenEnded)
         {
             stop = true;
@@ -94,6 +97,11 @@ public class PathFollow : MonoBehaviour
     public float GetProgress()
     {
         return this.progress;
+    }
+
+    public void SetLastPoint()
+    {
+        lastPos = parentOffset + _spline.GetPosition(_spline.GetPointCount() - 1);              //Assign final target position
     }
 
     /**

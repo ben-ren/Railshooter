@@ -23,10 +23,6 @@ public class Gun_Controller : MonoBehaviour{
     void Update(){
         mousePos = mainCam.ScreenToWorldPoint(Input.mousePosition);
         RotationCalc(mousePos);
-        if (Input.GetMouseButtonDown(0)) {
-            Shoot(mousePos);
-            CreateTrack(path, AssignTarget());
-        }
     }
 
     void RotationCalc(Vector3 pos){
@@ -49,22 +45,6 @@ public class Gun_Controller : MonoBehaviour{
     public Vector3 AssignTarget(GameObject obj)
     {
         return obj.transform.position;
-    }
-
-    /**
-     * Fires a ray in a straight line to the target position
-     */
-    public void Shoot(Vector3 target)
-    {
-
-    }
-
-    /**
-     * Fires a ray in a straight line towards target position cutting off at length of range.
-     */
-    public void Shoot(Vector3 target, float range)
-    {
-
     }
 
     /* 
@@ -91,10 +71,22 @@ public class Gun_Controller : MonoBehaviour{
     }
 
     /**
-     * Instantiates a projectile prefab instead of firing a ray. 
+     * Rail Generation gameplan
+     * 
+     * 1) Calculate Range from gun to target position
+     * 2) Instantiate empty target gameObject at target location.
+     * 
+     * 3) the target will have a RailGenerate script
+     * 
+     * 3a) Instantiate newRail at (0,0,0)
+     * 3b) Assign rootTrack, edgeCollider, inputTracks & outputsTracks to both StartTrackSwitch and EndTrackSwitch
+     * 3c) Move EndTrackSwitch to target.transform.position
+     * 3d) Move StartTrackSwitch to (a: index+1, or, b: (FindPointOnSpline(currentPosition+offset)))
+     *      note - will probably go with version (a) for simplicity
+     * 
+     * 
+     * Other
+     * -----
+     * If Railshooter reaches end of a rail automatically generate a new point on the current rail at distance of range.
      */
-    public void ShootProjectile()
-    {
-        GameObject bullet = (GameObject)Instantiate(projectile);
-    }
 }

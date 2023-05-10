@@ -57,6 +57,7 @@ public class TrainController : PathFollow
         return track != -1 || track == -1 && this.SSC != shape;
     }
 
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
         target = collision.gameObject.transform.position;

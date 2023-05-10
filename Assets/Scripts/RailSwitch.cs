@@ -16,7 +16,7 @@ public class RailSwitch : MonoBehaviour
 
     //The stored location data of the connection point on the rootTrack;
     private int index;                          // the current track node
-    public float p = 0.0f;                     // the progress between 2 nodes
+    private float p = 0.0f;                     // the progress between 2 nodes
 
     public int selectedTrack;
     public bool ObjectOnSwitch;
