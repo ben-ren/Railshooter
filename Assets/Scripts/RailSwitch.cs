@@ -19,6 +19,7 @@ public class RailSwitch : MonoBehaviour
     private float p = 0.0f;                     // the progress between 2 nodes
 
     public int selectedTrack;
+    public bool AssignedToStartNode;            //Assigns RailSwitch to either start or end node
     public bool ObjectOnSwitch;
 
     private Vector3 parentOffset;
@@ -34,17 +35,44 @@ public class RailSwitch : MonoBehaviour
         parentOffset = this.transform.parent.position;
         transform.position = transform.position + parentOffset;
         AllignTrackSwitch();
-        SetInputTrackLastNode(inputTracks);
-        index = GetIndexOnSpline();
-        p = GetProgressOnSplineSegment(connectedRailPoint, index);
+        if (rootTrack != null)
+        {
+            SetInputTrackLastNode(inputTracks);
+            index = GetIndexOnSpline();
+            p = GetProgressOnSplineSegment(connectedRailPoint, index);
+        }
         ObjectOnSwitch = false;
     }
 
     // Update is called once per frame
     void Update()
     {
-        index = GetIndexOnSpline();
-        SelectTrack(selectedTrack);
+        if (rootTrack != null)
+        {
+            index = GetIndexOnSpline();
+            SelectTrack(selectedTrack);
+        }
+
+        //if 
+    }
+
+    /**
+     * Automatically moves the RailSwitch's to the start and end of their rail during runtime. 
+     * Used to reassign the end RailSwitch position after the rail has been extended. 
+     */
+    void AssignSwitchPosition()
+    {
+        if (AssignedToStartNode)    //RailSwitch is assigned to start node
+        {
+            //set transform.position = outputTracks[0]
+            transform.position = outputsTracks[0].spline.GetPosition(0);
+        }
+        else                        //RailSwitch is assigned to end node
+        {
+            //set transform.position = inputTracks[0]
+            int length = inputTracks[0].spline.GetPointCount();
+            transform.position = inputTracks[0].spline.GetPosition(length - 1);
+        }
     }
 
     /**

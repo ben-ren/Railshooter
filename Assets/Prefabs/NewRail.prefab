@@ -14,7 +14,7 @@ GameObject:
   - component: {fileID: 5968744569589500927}
   m_Layer: 0
   m_Name: Railway (1)
-  m_TagString: Untagged
+  m_TagString: track
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -331,6 +331,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5485298651323987723, guid: a67f739b84fc1d040beffa4c03e0f964,
         type: 3}
+      propertyPath: AssignedToStartNode
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5485298651323987723, guid: a67f739b84fc1d040beffa4c03e0f964,
+        type: 3}
       propertyPath: inputTracks.Array.size
       value: 1
       objectReference: {fileID: 0}
@@ -468,6 +473,11 @@ PrefabInstance:
         type: 3}
       propertyPath: edgeCollider
       value: 
+      objectReference: {fileID: 0}
+    - target: {fileID: 5485298651323987723, guid: a67f739b84fc1d040beffa4c03e0f964,
+        type: 3}
+      propertyPath: AssignedToStartNode
+      value: 1
       objectReference: {fileID: 0}
     - target: {fileID: 5485298651323987723, guid: a67f739b84fc1d040beffa4c03e0f964,
         type: 3}

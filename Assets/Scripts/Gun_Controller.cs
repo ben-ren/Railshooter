@@ -5,24 +5,29 @@ using UnityEngine.U2D;
 
 public class Gun_Controller : MonoBehaviour{
 
-    public GameObject projectile;
-    public GameObject prefab;
-    public PathFollow path;
     public int railCount;
+    public float range;
 
-    private Spline spl;
+    private PathFollow train;
+    private Vector3 target;
+
     private Camera mainCam;
     private Vector3 mousePos;
     
     void Start(){
-        spl = this.gameObject.GetComponentInParent<PathFollow>().SSC.spline;
+        train = GetComponentInParent<PathFollow>();
+        target = Vector2.up * range;
         mainCam = GameObject.FindGameObjectWithTag("MainCamera").GetComponent<Camera>();
     }
 
     // Update is called once per frame
     void Update(){
+        target = transform.parent.position + (GetMouseDirection() * range);
         mousePos = mainCam.ScreenToWorldPoint(Input.mousePosition);
         RotationCalc(mousePos);
+        if (railCount > 0) {
+            ExtendRail();
+        }
     }
 
     void RotationCalc(Vector3 pos){
@@ -31,62 +36,89 @@ public class Gun_Controller : MonoBehaviour{
         transform.rotation = Quaternion.Euler(0, 0, z_rot);
     }
 
+    
     /**
-     * Assign the mouse position as the target
+     * Extends the current rail segment when reaching the end of the rail
      */
-    public Vector3 AssignTarget()
+    void ExtendRail()
     {
-        return mousePos;
-    }
-
-    /**
-     * Assign an input GameObject as the target
-     */
-    public Vector3 AssignTarget(GameObject obj)
-    {
-        return obj.transform.position;
-    }
-
-    /* 
-     * Instantiates a RailSwitch prefab at a position on the PathFollow
-     * with it's track leading to a Vector3 target position 
-     */
-    void CreateTrack(PathFollow path, Vector3 target)
-    {
-        Vector3 start = GetPathVector(path, 0);
-        Vector3 end = GetPathVector(path, 1);
-        Vector3 pos = path.GetPointOnSpline(path.GetIndex(), path.GetIndex() + 1, path.GetProgress(), start, end);
-        GameObject track = (GameObject)Instantiate(prefab, pos, Quaternion.identity);
-        track.GetComponentInChildren<SpriteShapeController>().spline.SetPosition(1, target);
-        int splineLength = track.GetComponentInChildren<SpriteShapeController>().spline.GetPointCount();
-        for (int i = 0; i < splineLength; i++)
+        if ((train.GetIndex() == train.SSC.spline.GetPointCount() - 2) && (train.GetProgress() > 0.8f) && (train.GetProgress() < 1f))
         {
-            track.GetComponentInChildren<SpriteShapeController>().spline.SetTangentMode(i, ShapeTangentMode.Continuous);
+            Vector3 newPos = new(target.x, target.y, 0.0f);
+            AddNode(newPos);
+            train.SetLastPoint();
+            TangentAllign(train.SSC.spline.GetPointCount() - 1);
+
         }
     }
 
-    Vector3 GetPathVector(PathFollow path, int indexOffset)
+    /**
+     * Get's the direction the mouse/gun is facing
+     */
+    Vector3 GetMouseDirection()
     {
-        return path.SSC.spline.GetPosition(path.GetIndex() + indexOffset);
+        return (mousePos - transform.parent.position).normalized * 2;
     }
 
     /**
-     * Rail Generation gameplan
-     * 
-     * 1) Calculate Range from gun to target position
-     * 2) Instantiate empty target gameObject at target location.
-     * 
-     * 3) the target will have a RailGenerate script
-     * 
-     * 3a) Instantiate newRail at (0,0,0)
-     * 3b) Assign rootTrack, edgeCollider, inputTracks & outputsTracks to both StartTrackSwitch and EndTrackSwitch
-     * 3c) Move EndTrackSwitch to target.transform.position
-     * 3d) Move StartTrackSwitch to (a: index+1, or, b: (FindPointOnSpline(currentPosition+offset)))
-     *      note - will probably go with version (a) for simplicity
-     * 
-     * 
-     * Other
-     * -----
-     * If Railshooter reaches end of a rail automatically generate a new point on the current rail at distance of range.
+     * Adds a node with the continuous tangent mode to the end of the spline.
      */
+    void AddNode(Vector3 newPoint)
+    {
+        int pointCount = train.SSC.spline.GetPointCount(); // Get the number of existing points on the spline
+        train.SSC.spline.SetTangentMode(pointCount - 1, ShapeTangentMode.Continuous); // Set the tangent mode of the last point to continuous
+        train.SSC.spline.InsertPointAt(pointCount, newPoint);      // Add the new point to the end of the spline
+        train.SSC.BakeCollider(); // Bake the collider to update its shape
+        train.SSC.BakeMesh(); // Bake the mesh to update its shape
+    }
+
+    /**
+     * Set the new node's tangent's to properly allign rails
+     */
+    void TangentAllign(int index)
+    {
+        //SSC.spline.SetTangentMode(index - 1, ShapeTangentMode.Continuous);
+        Vector3 A = train.SSC.spline.GetPosition(index);      //end point
+        Vector3 B = train.SSC.spline.GetPosition(index - 1);  //start point
+        Vector3 C = train.SSC.spline.GetPosition(index - 2);  //previous penultimate point
+
+        Vector3 direction = (B - C).normalized;     //the direction the node at that location is trending towards
+
+        //CHECK - distance may need to be divided by 2 for edge cases.
+        float distance = Vector3.Distance(B, A);    //the distance between the original end point and the new end point
+
+        //Sets the tangents of the old end node.
+        train.SSC.spline.SetLeftTangent(index - 1, -direction);
+        train.SSC.spline.SetRightTangent(index - 1, direction * distance);
+
+        //Set the left tangent of the new added node.
+        train.SSC.spline.SetTangentMode(index, ShapeTangentMode.Continuous); // Set the tangent mode of the last point to continuous
+        train.SSC.spline.SetLeftTangent(index, -GunWorldDirection() * (distance/2));         //set tangent to the opposite direction of the current gun rotation
+    }
+
+    /**
+     * Calculates the direction the the gun is facing as a vector instead of as a rotation
+     */
+    Vector3 GunWorldDirection()
+    {
+        // Get the z-rotation value
+        float zRotation = transform.rotation.eulerAngles.z;
+
+        // Convert z-rotation to direction vector
+        Vector3 direction = Quaternion.Euler(0f, 0f, zRotation) * Vector3.up;
+
+        return direction;
+    }
+
+    /*
+     * Fires a Raycast to the childTarget's location
+     * Checks if ray collides with an edgecollider's that are assigned with the "track" tag.
+     * 
+     * If true set RailSwitch with AssignedToStart set to true to the collision location. 
+     * Update spline to location target.
+     */
+    void CheckRailCollision()
+    {
+
+    }
 }

@@ -10,6 +10,7 @@ public class PathFollow : MonoBehaviour
 
     protected Spline _spline;             //Spline component
     protected Camera mainCam;
+
     private Vector3 targetPos;          //Object target position
     private Vector3 startPos;           //Object start position
     private Vector3 splineStart;        //spline start position
@@ -18,6 +19,7 @@ public class PathFollow : MonoBehaviour
     private float distance;             //distance between points on the curve
     private Vector3 parentOffset;       //the offset between the parent object & the SpriteShapeController
     private int i;
+
     public bool stop;                  //Controls when the gameObject moves;
 
     void Start()
