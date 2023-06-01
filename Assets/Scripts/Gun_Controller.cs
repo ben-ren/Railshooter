@@ -7,6 +7,7 @@ public class Gun_Controller : MonoBehaviour{
 
     public int railCount;
     public float range;
+    public bool enableShoot;
 
     private PathFollow train;
     private Vector3 target;
@@ -25,7 +26,7 @@ public class Gun_Controller : MonoBehaviour{
         target = transform.parent.position + (GetMouseDirection() * range);
         mousePos = mainCam.ScreenToWorldPoint(Input.mousePosition);
         RotationCalc(mousePos);
-        if (railCount > 0) {
+        if (railCount > 0 && enableShoot) {
             ExtendRail();
         }
     }
@@ -42,7 +43,7 @@ public class Gun_Controller : MonoBehaviour{
      */
     void ExtendRail()
     {
-        if ((train.GetIndex() == train.SSC.spline.GetPointCount() - 2) && (train.GetProgress() > 0.8f) && (train.GetProgress() < 1f))
+        if ((train.GetIndex() == train.SSC.spline.GetPointCount() - 2) && (train.GetProgress() > 0.85f) && (train.GetProgress() < 1f))
         {
             Vector3 newPos = new(target.x, target.y, 0.0f);
             AddNode(newPos);

@@ -30,6 +30,7 @@ public class TrainController : PathFollow
         if (trackShift)
         {
             transform.position = Vector2.MoveTowards(transform.position, target, step);
+            SetLastPoint();
         }
         if (ComparePositions())
         {
